@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ZH-CN">
+<head>
+  <meta charset="utf-8">
+  <title>photo in browser</title>
+  <style>
+    .booth {
+      width:400px;
+     
+      background:#ccc;
+      border: 10px solid #ddd;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="booth">
+    <video id="video" width="400" height="300"></video>
+    <button id="start"> start</button>
+    <button id="stop"> stop</button>
+    <button id='tack'> snap shot</button>
+    <canvas id='canvas' width='400' height='300'></canvas>
+    <img id='img' src=''>
+  </div>
+ 
+ 
+  <script>
+    var video = document.getElementById('video'),
+        canvas = document.getElementById('canvas'),
+        start = document.getElementById('start'),
+        stop = document.getElementById('stop'),
+        snap = document.getElementById('tack'),
+        img = document.getElementById('img'),
+        vendorUrl = window.URL || window.webkitURL,
+        videoStream;
+        
+    start.addEventListener('click', function(){
+        // 想要获取一个最接近 1280x720 的相机分辨率
+        var constraints = { audio: true, video: { width: 1280, height: 720 } }; 
+
+        navigator.mediaDevices.getUserMedia(constraints)
+        .then(function(mediaStream) {
+          videoStream = mediaStream;
+          video.srcObject = mediaStream;
+          video.onloadedmetadata = function(e) {
+            video.play();
+          };
+        })
+        .catch(function(err) { console.log(err.name + ": " + err.message); });
+    })
+
+    stop.addEventListener('click', function(){
+      videoStream && videoStream.getVideoTracks()[0].stop();
+      video.pause();
+    })
+
+    snap.addEventListener('click', function(){
+        //绘制canvas图形
+        canvas.getContext('2d').drawImage(video, 0, 0, 400, 300);
+        //把canvas图像转为img图片
+        img.src = canvas.toDataURL("image/png");
+    })
+  </script>
+</body>
+</html>
